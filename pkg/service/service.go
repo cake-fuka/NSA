@@ -2,8 +2,11 @@ package service
 
 import (
 	"encoding/json"
+	"strings"
 
 	"hobby.com/pkg/repository"
+
+	"github.com/bluele/mecab-golang"
 )
 
 func FindVideos(word, page string) string {
@@ -20,6 +23,21 @@ func FindCollections(page string) string {
 	return string(jsonModel)
 }
 
-func analysis() string {
-	return ""
+func analysis(text string) []string {
+	m, _ := mecab.New()
+	defer m.Destroy()
+	tg, _ := m.NewTagger()
+	lt, _ := m.NewLattice(text)
+	node := tg.ParseToNode(lt)
+	words := []string{}
+	for {
+		features := strings.Split(node.Feature(), ",")
+		if features[0] == "名詞" {
+			words = append(words, node.Surface())
+		}
+		if node.Next() != nil {
+			break
+		}
+	}
+	return words
 }
