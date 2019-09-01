@@ -41,28 +41,29 @@ type Video struct {
 }
 
 type VideoItem struct {
-	VID         string `json:"vid"`
-	UID         string `json:"uid"`
-	Title       string `json:"title"`
-	Keyword     string `json:"keyword"`
-	Channel     string `json:"channel"`
-	Duration    int    `json:"duration"`
-	Framerate   int    `json:"framerate"`
-	HD          bool   `json:"hd"`
-	AddTime     int    `json:"addtime"`
-	ViewNumber  int    `json:"viewnumber"`
-	Likes       int    `json:"likes"`
-	DisLikes    int    `json:"dislikes"`
-	VideoURL    string `json:"video_url"`
-	EmbeddedURL string `json:"embedded_url"`
-	PreviewURL  string `json:"preview_url"`
+	VID         string  `json:"vid"`
+	UID         string  `json:"uid"`
+	Title       string  `json:"title"`
+	Keyword     string  `json:"keyword"`
+	Channel     string  `json:"channel"`
+	Duration    float64 `json:"duration"`
+	Framerate   float64 `json:"framerate"`
+	HD          bool    `json:"hd"`
+	AddTime     int     `json:"addtime"`
+	ViewNumber  int     `json:"viewnumber"`
+	Likes       int     `json:"likes"`
+	DisLikes    int     `json:"dislikes"`
+	VideoURL    string  `json:"video_url"`
+	EmbeddedURL string  `json:"embedded_url"`
+	PreviewURL  string  `json:"preview_url"`
 }
 
 // AvgleからVideo Collectionを取得
-func GetCollections(page string) *AvGoleCollections {
+func GetCollections() *AvGoleCollections {
 	values := url.Values{}
 	values.Add("limit", "70")
-	resp, err := http.Get("https://api.avgle.com/v1/collections/" + page + "?" + values.Encode())
+	values.Add("o", "mv")
+	resp, err := http.Get("https://api.avgle.com/v1/collections/0?" + values.Encode())
 
 	if err != nil {
 		fmt.Printf("コレクションエラー%s", err)

@@ -22,8 +22,8 @@ func search(c *gin.Context) {
 	if name == "" {
 		name = "夢乃あいか"
 	}
-	videos := service.FindVideos(name, "0")
-	collections := service.FindCollections("0")
+	videos := service.FindVideos(name)
+	collections := service.FindCollections()
 	c.HTML(200, "videos.html", gin.H{
 		"videos":      videos,
 		"collections": collections,
