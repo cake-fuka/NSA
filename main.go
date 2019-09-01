@@ -10,19 +10,22 @@ func main() {
 
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.html")
-	r.GET("/collection", func(c *gin.Context) {
-		output := service.FindCollections("0")
-		c.HTML(200, "index.html", gin.H{
-			"collection": output,
-		})
-	})
 
-	r.GET("/video", func(c *gin.Context) {
-		output := service.FindVideos("夢乃あいか", "0")
-		c.HTML(200, "videos.html", gin.H{
-			"videos": output,
-		})
-	})
+	r.GET("/video/:name", search)
+	r.GET("/video", search)
 
 	r.Run(":8080")
+}
+
+func search(c *gin.Context) {
+	name := c.Param("name")
+	if name == "" {
+		name = "夢乃あいか"
+	}
+	videos := service.FindVideos(name, "0")
+	collections := service.FindCollections("0")
+	c.HTML(200, "videos.html", gin.H{
+		"videos":      videos,
+		"collections": collections,
+	})
 }

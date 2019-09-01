@@ -61,7 +61,7 @@ type VideoItem struct {
 // AvgleからVideo Collectionを取得
 func GetCollections(page string) *AvGoleCollections {
 	values := url.Values{}
-	values.Add("limit", "20")
+	values.Add("limit", "70")
 	resp, err := http.Get("https://api.avgle.com/v1/collections/" + page + "?" + values.Encode())
 
 	if err != nil {
@@ -87,7 +87,7 @@ func GetCollections(page string) *AvGoleCollections {
 // AvgleからVideo を取得
 func GetVideos(word, page string) *Video {
 	values := url.Values{}
-	values.Add("limit", "250")
+	values.Add("limit", "40")
 	values.Add("o", "mv")
 	resp, err := http.Get("https://api.avgle.com/v1/jav/" + word + "/" + page + "?" + values.Encode())
 
