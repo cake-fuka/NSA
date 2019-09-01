@@ -9,14 +9,19 @@ import (
 func main() {
 
 	r := gin.Default()
+	r.LoadHTMLGlob("templates/*.html")
 	r.GET("/collection", func(c *gin.Context) {
 		output := service.FindCollections("0")
-		c.JSON(200, output)
+		c.HTML(200, "index.html", gin.H{
+			"collection": output,
+		})
 	})
 
 	r.GET("/video", func(c *gin.Context) {
-		ouput := service.FindVideos("夢乃あいか", "0")
-		c.JSON(200, ouput)
+		output := service.FindVideos("夢乃あいか", "0")
+		c.HTML(200, "videos.html", gin.H{
+			"videos": output,
+		})
 	})
 
 	r.Run(":8080")
