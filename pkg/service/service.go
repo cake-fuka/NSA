@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"strings"
 
 	"hobby.com/pkg/repository"
@@ -9,18 +8,26 @@ import (
 	"github.com/bluele/mecab-golang"
 )
 
-func FindVideos(word, page string) string {
+func FindVideos(word, page string) []repository.VideoItem {
 	video := repository.GetVideos(word, page)
 	videos := video.Response.Videos
-	jsonModel, _ := json.Marshal(videos)
-	return string(jsonModel)
+	okVideo := []repository.VideoItem{}
+	wordsList := [][]string{}
+	for _, v := range videos {
+		if !matching(wordsList, v.Title) {
+			okVideo = append(okVideo, v)
+			wordsList = append(wordsList, analysis(v.Title))
+		}
+	}
+	// jsonModel, _ := json.Marshal(okVideo)
+	return okVideo
 }
 
-func FindCollections(page string) string {
+func FindCollections(page string) []repository.CollectionItem {
 	collection := repository.GetCollections(page)
 	collections := collection.Response.Collections
-	jsonModel, _ := json.Marshal(collections)
-	return string(jsonModel)
+	// jsonModel, _ := json.Marshal(collections)
+	return collections
 }
 
 func analysis(text string) []string {
@@ -40,4 +47,25 @@ func analysis(text string) []string {
 		}
 	}
 	return words
+}
+
+func matching(videos [][]string, title string) bool {
+	max := 0.0
+	for _, x := range videos {
+		cnt := 0.0
+		length := len(x)
+		for _, y := range x {
+			if strings.Contains(title, y) {
+				cnt += 1 / float64(length)
+			}
+		}
+		if max < cnt {
+			max = cnt
+		}
+	}
+	if max >= 0.5 {
+		return true
+	} else {
+		return false
+	}
 }

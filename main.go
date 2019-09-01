@@ -11,12 +11,12 @@ func main() {
 	r := gin.Default()
 	r.GET("/collection", func(c *gin.Context) {
 		output := service.FindCollections("0")
-		c.String(200, output)
+		c.JSON(200, output)
 	})
 
 	r.GET("/video", func(c *gin.Context) {
 		ouput := service.FindVideos("夢乃あいか", "0")
-		c.String(200, ouput)
+		c.JSON(200, ouput)
 	})
 
 	r.Run()
