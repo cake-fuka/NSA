@@ -19,5 +19,5 @@ func main() {
 		c.JSON(200, ouput)
 	})
 
-	r.Run()
+	r.Run(":8080")
 }
