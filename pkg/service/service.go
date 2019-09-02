@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"strings"
 
 	"hobby.com/pkg/repository"
@@ -8,23 +9,29 @@ import (
 	"github.com/bluele/mecab-golang"
 )
 
-func FindVideos(word, page string) []repository.VideoItem {
-	video := repository.GetVideos(word, page)
-	videos := video.Response.Videos
+func FindVideos(word string) []repository.VideoItem {
 	okVideo := []repository.VideoItem{}
-	wordsList := [][]string{}
-	for _, v := range videos {
-		if !matching(wordsList, v.Title) {
-			okVideo = append(okVideo, v)
-			wordsList = append(wordsList, analysis(v.Title))
+	page := 0
+	for len(okVideo) < 30 {
+		video := repository.GetVideos(word, strconv.Itoa(page))
+		videos := video.Response.Videos
+		wordsList := [][]string{}
+		for _, v := range videos {
+			if !matching(wordsList, v.Title) {
+				okVideo = append(okVideo, v)
+				wordsList = append(wordsList, analysis(v.Title))
+			}
 		}
+		if len(videos) < 40 {
+			break
+		}
+		page++
 	}
-	// jsonModel, _ := json.Marshal(okVideo)
 	return okVideo
 }
 
-func FindCollections(page string) []repository.CollectionItem {
-	collection := repository.GetCollections(page)
+func FindCollections() []repository.CollectionItem {
+	collection := repository.GetCollections()
 	collections := collection.Response.Collections
 	// jsonModel, _ := json.Marshal(collections)
 	return collections
