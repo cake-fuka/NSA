@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	"hobby.com/pkg/service"
 
 	"github.com/gin-gonic/gin"
@@ -26,9 +24,6 @@ func search(c *gin.Context) {
 	}
 	videos := service.FindVideos(name)
 	collections := service.FindCollections()
-	for index := range videos {
-		videos[index].PreviewURL = strings.Replace(videos[index].PreviewURL, "https", "http", 1)
-	}
 	c.HTML(200, "videos.html", gin.H{
 		"videos":      videos,
 		"collections": collections,
