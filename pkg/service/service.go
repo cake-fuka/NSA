@@ -4,18 +4,24 @@ import (
 	"strconv"
 	"strings"
 
+	. "hobby.com/pkg/domain"
 	"hobby.com/pkg/repository"
 
 	"github.com/bluele/mecab-golang"
 )
 
-func FindVideos(word string) []repository.VideoItem {
-	okVideo := []repository.VideoItem{}
-	page := 0
+func FindVideos(req Request) *Responce {
+	var resp Responce
+	okVideo := []VideoItem{}
+	page := req.Page
+	wordsList := [][]string{}
+	for _, t := range req.Titles {
+		tWord := analysis(t.Title)
+		wordsList = append(wordsList, tWord)
+	}
 	for len(okVideo) < 30 {
-		video := repository.GetVideos(word, strconv.Itoa(page))
+		video := repository.GetVideos(req.Name, strconv.Itoa(page))
 		videos := video.Response.Videos
-		wordsList := [][]string{}
 		for _, v := range videos {
 			if !matching(wordsList, v.Title) {
 				okVideo = append(okVideo, v)
@@ -27,15 +33,17 @@ func FindVideos(word string) []repository.VideoItem {
 		}
 		page++
 	}
-	return okVideo
+	resp.Videos = okVideo
+	resp.Page = page
+	return &resp
 }
 
-func FindCollections() []repository.CollectionItem {
-	collection := repository.GetCollections()
-	collections := collection.Response.Collections
-	// jsonModel, _ := json.Marshal(collections)
-	return collections
-}
+// func FindCollections() []CollectionItem {
+// 	collection := repository.GetCollections()
+// 	collections := collection.Response.Collections
+// 	// jsonModel, _ := json.Marshal(collections)
+// 	return collections
+// }
 
 func analysis(text string) []string {
 	m, _ := mecab.New()
