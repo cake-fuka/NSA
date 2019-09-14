@@ -1,10 +1,11 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
-	"hobby.com/pkg/repository"
 	"hobby.com/pkg/service"
 
 	"github.com/gin-contrib/sessions"
@@ -13,12 +14,12 @@ import (
 )
 
 type category struct {
-	Name interface{}
-	Page interface{}
+	Name      interface{}
+	Page      interface{}
+	VideoJSON interface{}
 }
 
 var sessionCategory category
-var allVideo []repository.VideoItem
 
 func main() {
 	r := gin.Default()
@@ -49,14 +50,15 @@ func search(c *gin.Context) {
 		videos[index].PreviewURL = strings.Replace(videos[index].PreviewURL, "https", "http", 1)
 	}
 
-	allVideo = videos
+	bytes, _ := json.Marshal(videos)
 	session := sessions.Default(c)
 	session.Set("Name", name)
 	session.Set("Page", page)
-	session.Save()
+	session.Set("VideoJSON", string(bytes))
+	fmt.Println(session.Save())
 
 	c.HTML(200, "videos.html", gin.H{
-		"videos":      allVideo,
+		"videos":      videos,
 		"collections": collections,
 	})
 }
@@ -64,30 +66,32 @@ func search(c *gin.Context) {
 func getMoreVideo(c *gin.Context) {
 	name, _ := c.Get("Name")
 	page, _ := c.Get("Page")
+	videoJSON, _ := c.Get("VideoJSON")
 
-	videos, newPage := service.FindVideos(name.(string), page.(string), allVideo)
+	videos, newPage := service.FindVideos(name.(string), page.(string), videoJSON)
 	collections := service.FindCollections()
 	for index := range videos {
 		videos[index].PreviewURL = strings.Replace(videos[index].PreviewURL, "https", "http", 1)
 	}
 
-	allVideo = videos
+	bytes, _ := json.Marshal(videos)
 	session := sessions.Default(c)
 	session.Set("Page", newPage)
+	session.Set("VideoJSON", string(bytes))
 	session.Save()
 
 	c.HTML(200, "videos.html", gin.H{
-		"videos":      allVideo,
+		"videos":      videos,
 		"collections": collections,
 	})
 }
 
 func sessionCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		session := sessions.Default(c)
 		sessionCategory.Name = session.Get("Name")
 		sessionCategory.Page = session.Get("Page")
+		sessionCategory.Page = session.Get("VideoJSON")
 
 		if sessionCategory.Name == nil {
 			c.Redirect(http.StatusMovedPermanently, "/NSA/video")
@@ -95,6 +99,7 @@ func sessionCheck() gin.HandlerFunc {
 		} else {
 			c.Set("Name", sessionCategory.Name)
 			c.Set("Page", sessionCategory.Page)
+			c.Set("VideoJSON", sessionCategory.Page)
 			c.Next()
 		}
 	}

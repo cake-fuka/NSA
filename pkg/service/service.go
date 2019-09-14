@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -12,7 +13,10 @@ import (
 func FindVideos(word, page string, allVideo interface{}) ([]repository.VideoItem, string) {
 	okVideo := []repository.VideoItem{}
 	if allVideo != nil {
-		okVideo = allVideo.([]repository.VideoItem)
+		bytes := []byte(allVideo.(string))
+		var videoJSON []repository.VideoItem
+		json.Unmarshal(bytes, &videoJSON)
+		okVideo = videoJSON
 	}
 	length := len(okVideo)
 	for len(okVideo)-length < 30 {
